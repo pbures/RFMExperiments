@@ -8,6 +8,7 @@
 #define SET_LOW(port,bit) port &= ~(1<<bit)
 
 #define BLINK(port,bit) SET_HIGH(port,bit);SET_LOW(port,bit);
+#define BLINK_DELAY(port,bit,ms) SET_HIGH(port,bit);_delay_ms(ms);SET_LOW(port,bit);
 
 #define SET_HIGH_REF(port,bit) *port |= (1<<bit)
 #define SET_LOW_REF(port,bit) *port &= ~(1<<bit)

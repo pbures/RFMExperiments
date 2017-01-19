@@ -7,10 +7,16 @@ Project("{E66E83B9-2572-4076-B26E-6BE79FF3018A}") = "RF69Communication", "RF69Co
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug - Receiver|AVR = Debug - Receiver|AVR
+		Debug - Transciever|AVR = Debug - Transciever|AVR
 		Debug|AVR = Debug|AVR
 		Release|AVR = Release|AVR
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Debug - Receiver|AVR.ActiveCfg = Debug - Receiver|AVR
+		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Debug - Receiver|AVR.Build.0 = Debug - Receiver|AVR
+		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Debug - Transciever|AVR.ActiveCfg = Debug - Transciever|AVR
+		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Debug - Transciever|AVR.Build.0 = Debug - Transciever|AVR
 		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Debug|AVR.ActiveCfg = Debug|AVR
 		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Debug|AVR.Build.0 = Debug|AVR
 		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Release|AVR.ActiveCfg = Release|AVR
