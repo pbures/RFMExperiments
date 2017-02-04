@@ -128,8 +128,6 @@
 	 
 	 #ifdef RECEIVER
 	 radio.promiscuous(false);
-	 uint32_t packetCount = 0;
-	 uint8_t ackCount = 0;
 	 
 	 #ifdef DEBUG
      printf("Checking if radio received signal...\r\n");
@@ -148,7 +146,6 @@
 			 
 			 if (radio.ACKRequested())
 			 {
-				 uint8_t theNodeID = radio.SENDERID;
 				 radio.sendACK();
 				 printf_P(PSTR(" ACK"));
 			 }

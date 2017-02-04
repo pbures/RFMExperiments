@@ -19,6 +19,8 @@ Project("{E66E83B9-2572-4076-B26E-6BE79FF3018A}") = "DHT22", "DHT22\DHT22.cpppro
 EndProject
 Project("{E66E83B9-2572-4076-B26E-6BE79FF3018A}") = "SPI", "SPI\SPI.cppproj", "{CDAEAB6F-743F-4B4A-9BAA-F17F01BC7940}"
 EndProject
+Project("{E66E83B9-2572-4076-B26E-6BE79FF3018A}") = "RFM69HW", "RFM69HW\RFM69HW.cppproj", "{BB28205B-6D1E-4B7E-B124-AAC6C5FA3A53}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug - Receiver|AVR = Debug - Receiver|AVR
@@ -35,30 +37,38 @@ Global
 		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Debug|AVR.Build.0 = Debug|AVR
 		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Release|AVR.ActiveCfg = Release|AVR
 		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Release|AVR.Build.0 = Release|AVR
-		{0A4DF7EA-0F88-4D47-B3D6-5BA358C75435}.Debug - Receiver|AVR.ActiveCfg = Debug|AVR
-		{0A4DF7EA-0F88-4D47-B3D6-5BA358C75435}.Debug - Receiver|AVR.Build.0 = Debug|AVR
-		{0A4DF7EA-0F88-4D47-B3D6-5BA358C75435}.Debug - Transciever|AVR.ActiveCfg = Debug|AVR
-		{0A4DF7EA-0F88-4D47-B3D6-5BA358C75435}.Debug - Transciever|AVR.Build.0 = Debug|AVR
+		{0A4DF7EA-0F88-4D47-B3D6-5BA358C75435}.Debug - Receiver|AVR.ActiveCfg = Debug - Receiver|AVR
+		{0A4DF7EA-0F88-4D47-B3D6-5BA358C75435}.Debug - Receiver|AVR.Build.0 = Debug - Receiver|AVR
+		{0A4DF7EA-0F88-4D47-B3D6-5BA358C75435}.Debug - Transciever|AVR.ActiveCfg = Debug - Transciever|AVR
+		{0A4DF7EA-0F88-4D47-B3D6-5BA358C75435}.Debug - Transciever|AVR.Build.0 = Debug - Transciever|AVR
 		{0A4DF7EA-0F88-4D47-B3D6-5BA358C75435}.Debug|AVR.ActiveCfg = Debug|AVR
 		{0A4DF7EA-0F88-4D47-B3D6-5BA358C75435}.Debug|AVR.Build.0 = Debug|AVR
 		{0A4DF7EA-0F88-4D47-B3D6-5BA358C75435}.Release|AVR.ActiveCfg = Release|AVR
 		{0A4DF7EA-0F88-4D47-B3D6-5BA358C75435}.Release|AVR.Build.0 = Release|AVR
-		{B0CACAFE-ED49-4611-88AC-9999A522B8ED}.Debug - Receiver|AVR.ActiveCfg = Debug|AVR
-		{B0CACAFE-ED49-4611-88AC-9999A522B8ED}.Debug - Receiver|AVR.Build.0 = Debug|AVR
-		{B0CACAFE-ED49-4611-88AC-9999A522B8ED}.Debug - Transciever|AVR.ActiveCfg = Debug|AVR
-		{B0CACAFE-ED49-4611-88AC-9999A522B8ED}.Debug - Transciever|AVR.Build.0 = Debug|AVR
+		{B0CACAFE-ED49-4611-88AC-9999A522B8ED}.Debug - Receiver|AVR.ActiveCfg = Debug - Receiver|AVR
+		{B0CACAFE-ED49-4611-88AC-9999A522B8ED}.Debug - Receiver|AVR.Build.0 = Debug - Receiver|AVR
+		{B0CACAFE-ED49-4611-88AC-9999A522B8ED}.Debug - Transciever|AVR.ActiveCfg = Debug - Transciever|AVR
+		{B0CACAFE-ED49-4611-88AC-9999A522B8ED}.Debug - Transciever|AVR.Build.0 = Debug - Transciever|AVR
 		{B0CACAFE-ED49-4611-88AC-9999A522B8ED}.Debug|AVR.ActiveCfg = Debug|AVR
 		{B0CACAFE-ED49-4611-88AC-9999A522B8ED}.Debug|AVR.Build.0 = Debug|AVR
 		{B0CACAFE-ED49-4611-88AC-9999A522B8ED}.Release|AVR.ActiveCfg = Release|AVR
 		{B0CACAFE-ED49-4611-88AC-9999A522B8ED}.Release|AVR.Build.0 = Release|AVR
-		{CDAEAB6F-743F-4B4A-9BAA-F17F01BC7940}.Debug - Receiver|AVR.ActiveCfg = Debug|AVR
-		{CDAEAB6F-743F-4B4A-9BAA-F17F01BC7940}.Debug - Receiver|AVR.Build.0 = Debug|AVR
-		{CDAEAB6F-743F-4B4A-9BAA-F17F01BC7940}.Debug - Transciever|AVR.ActiveCfg = Debug|AVR
-		{CDAEAB6F-743F-4B4A-9BAA-F17F01BC7940}.Debug - Transciever|AVR.Build.0 = Debug|AVR
+		{CDAEAB6F-743F-4B4A-9BAA-F17F01BC7940}.Debug - Receiver|AVR.ActiveCfg = Debug - Receiver|AVR
+		{CDAEAB6F-743F-4B4A-9BAA-F17F01BC7940}.Debug - Receiver|AVR.Build.0 = Debug - Receiver|AVR
+		{CDAEAB6F-743F-4B4A-9BAA-F17F01BC7940}.Debug - Transciever|AVR.ActiveCfg = Debug - Transciever|AVR
+		{CDAEAB6F-743F-4B4A-9BAA-F17F01BC7940}.Debug - Transciever|AVR.Build.0 = Debug - Transciever|AVR
 		{CDAEAB6F-743F-4B4A-9BAA-F17F01BC7940}.Debug|AVR.ActiveCfg = Debug|AVR
 		{CDAEAB6F-743F-4B4A-9BAA-F17F01BC7940}.Debug|AVR.Build.0 = Debug|AVR
 		{CDAEAB6F-743F-4B4A-9BAA-F17F01BC7940}.Release|AVR.ActiveCfg = Release|AVR
 		{CDAEAB6F-743F-4B4A-9BAA-F17F01BC7940}.Release|AVR.Build.0 = Release|AVR
+		{BB28205B-6D1E-4B7E-B124-AAC6C5FA3A53}.Debug - Receiver|AVR.ActiveCfg = Debug - Receiver|AVR
+		{BB28205B-6D1E-4B7E-B124-AAC6C5FA3A53}.Debug - Receiver|AVR.Build.0 = Debug - Receiver|AVR
+		{BB28205B-6D1E-4B7E-B124-AAC6C5FA3A53}.Debug - Transciever|AVR.ActiveCfg = Debug - Transciever|AVR
+		{BB28205B-6D1E-4B7E-B124-AAC6C5FA3A53}.Debug - Transciever|AVR.Build.0 = Debug - Transciever|AVR
+		{BB28205B-6D1E-4B7E-B124-AAC6C5FA3A53}.Debug|AVR.ActiveCfg = Debug|AVR
+		{BB28205B-6D1E-4B7E-B124-AAC6C5FA3A53}.Debug|AVR.Build.0 = Debug|AVR
+		{BB28205B-6D1E-4B7E-B124-AAC6C5FA3A53}.Release|AVR.ActiveCfg = Release|AVR
+		{BB28205B-6D1E-4B7E-B124-AAC6C5FA3A53}.Release|AVR.Build.0 = Release|AVR
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
