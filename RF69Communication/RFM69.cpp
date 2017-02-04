@@ -300,7 +300,7 @@ bool RFM69::initialize(uint8_t freqBand, uint8_t nodeID, uint8_t networkID) {
 	// The reason for the semi-automaton is that the lib is interrupt driven and
 	// requires user action to read the received data and decide what to do with it
 	// replies usually take only 5..8ms at 50kbps@915MHz
-	bool RFM69::sendWithRetry(uint8_t toAddress, const void* buffer, uint8_t bufferSize, uint8_t retries, uint8_t retryWaitTime) {
+	bool RFM69::sendWithRetry(uint8_t toAddress, const void* buffer, uint8_t bufferSize, uint8_t retries, uint16_t retryWaitTime) {
 		uint32_t sentTime;
 		
 		for (uint8_t i = 0; i <= retries; i++) {
@@ -383,8 +383,10 @@ bool RFM69::initialize(uint8_t freqBand, uint8_t nodeID, uint8_t networkID) {
 		// no need to wait for transmit mode to be ready since its handled by the radio
 		setMode(RF69_MODE_TX);
 		uint32_t txStart = Timer.millis();
+		SET_HIGH(LED_PORT, LED_BIT);
+		SET_LOW(LED_PORT, LED_BIT);
 		while (true) {
-			if ((RF69_DIO0_PIN & RF69_DIO0_BIT) != 0 ) {
+			if ((RF69_DIO0_PIN & (1<<RF69_DIO0_BIT)) != 0 ) {
 				//printf("TX success.\r\n");
 				break;
 				} else {
@@ -396,9 +398,12 @@ bool RFM69::initialize(uint8_t freqBand, uint8_t nodeID, uint8_t networkID) {
 				break;
 			}
 		}
-		
-		_delay_ms(30);
+		SET_HIGH(LED_PORT, LED_BIT);
+		SET_LOW(LED_PORT, LED_BIT);
+		//_delay_ms(20);
 		setMode(RF69_MODE_STANDBY);
+		SET_HIGH(LED_PORT, LED_BIT);
+		SET_LOW(LED_PORT, LED_BIT);
 	}
 
 	// internal function - interrupt gets called when a packet is received
