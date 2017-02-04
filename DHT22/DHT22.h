@@ -22,19 +22,16 @@ class DHT {
 	public:
 	DHT(volatile uint8_t *ddr, volatile uint8_t *port, volatile uint8_t *pin, uint8_t bit);
 	void begin(void);
-	float readTemperature(bool S=false, bool force=false);
-	float C2F(float);
-	float F2C(float);
-	//float computeHeatIndex(float temperature, float percentHumidity, bool isFahrenheit=true);
-	float readHumidity(bool force=false);
-	bool read(bool force=false);
+	float getTemperature(bool force=false);
+	float getHumidity(bool force=false);
+	bool readSensor(bool force=false);
 
 	private:
 	uint8_t bytes[5];
 	volatile uint8_t *_ddr, *_port, *_pin;
 	uint8_t _bit;
-	volatile uint32_t _lastreadtime;
-	bool _lastresult;
+	volatile uint32_t lastReadTimestamp;
+	bool lastReading;
 	
 	 void setLow() {
 		 (*_port) &= ~(1<<_bit);
@@ -44,8 +41,8 @@ class DHT {
 		 (*_port) |= (1<<_bit);
 		 };
 		
-	void setOutputMode() {(*_ddr) |= (1<<_bit);};
-	void setInputMode() {(*_ddr) &= ~(1<<_bit);};
+	void setToOutput() {(*_ddr) |= (1<<_bit);};
+	void setToInput() {(*_ddr) &= ~(1<<_bit);};
 };
 
 class InterruptLock {

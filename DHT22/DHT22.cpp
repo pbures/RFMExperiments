@@ -18,116 +18,72 @@ void DHT::begin() {
 	DDRD |= (1<<PORTD7);
 	PORTD &= ~(1<<PORTD7);
 	
-	setInputMode();
+	setToInput();
 	setHigh();
 	
 	// Using this value makes sure that millis() - lastreadtime will be
 	// >= MIN_INTERVAL right away. Note that this assignment wraps around,
 	// but so will the subtraction.
-	_lastreadtime = -MIN_INTERVAL;
+	lastReadTimestamp = -MIN_INTERVAL;
 }
 
-//boolean S == Scale.  True == Fahrenheit; False == Celcius
-float DHT::readTemperature(bool S, bool force) {
-	float f = NAN;
+float DHT::getTemperature(bool force) {
+	float temp = NAN;
 
-	if (read(force)) {
-		f = bytes[2] & 0x7F;
-		f *= 256;
-		f += bytes[3];
-		f *= 0.1;
+	if (readSensor(force)) {
+		temp = bytes[2] & 0x7F;
+		temp *= 256;
+		temp += bytes[3];
+		temp *= 0.1;
 		if (bytes[2] & 0x80) {
-			f *= -1;
-		}
-		if(S) {
-			f = C2F(f);
+			temp *= -1;
 		}
 	}
-	return f;
+	return temp;
 }
 
-float DHT::C2F(float c) {
-	return c * 1.8 + 32;
-}
-
-float DHT::F2C(float f) {
-	return (f - 32) * 0.55555;
-}
-
-float DHT::readHumidity(bool force) {
-	float f = NAN;
-	if (read()) {
-		f = bytes[0];
-		f *= 256;
-		f += bytes[1];
-		f *= 0.1;
-	}
-	return f;
-}
-
-////boolean isFahrenheit: True == Fahrenheit; False == Celcius
-//float DHT::computeHeatIndex(float temperature, float percentHumidity, bool isFahrenheit) {
-//// Using both Rothfusz and Steadman's equations
-//// http://www.wpc.ncep.noaa.gov/html/heatindex_equation.shtml
-//float hi;
-//
-//if (!isFahrenheit)
-//temperature = C2F(temperature);
-//
-//hi = 0.5 * (temperature + 61.0 + ((temperature - 68.0) * 1.2) + (percentHumidity * 0.094));
-//
-//if (hi > 79) {
-//hi = -42.379 +
-//2.04901523 * temperature +
-//10.14333127 * percentHumidity +
-//-0.22475541 * temperature*percentHumidity +
-//-0.00683783 * pow(temperature, 2) +
-//-0.05481717 * pow(percentHumidity, 2) +
-//0.00122874 * pow(temperature, 2) * percentHumidity +
-//0.00085282 * temperature*pow(percentHumidity, 2) +
-//-0.00000199 * pow(temperature, 2) * pow(percentHumidity, 2);
-//
-//if((percentHumidity < 13) && (temperature >= 80.0) && (temperature <= 112.0))
-//hi -= ((13.0 - percentHumidity) * 0.25) * sqrt((17.0 - abs(temperature - 95.0)) * 0.05882);
-//
-//else if((percentHumidity > 85.0) && (temperature >= 80.0) && (temperature <= 87.0))
-//hi += ((percentHumidity - 85.0) * 0.1) * ((87.0 - temperature) * 0.2);
-//}
-//
-//return isFahrenheit ? hi : F2C(hi);
-//}
-
-bool DHT::read(bool force) {
-	// Check if sensor was read less than two seconds ago and return early to use last reading.
-	uint32_t currenttime = Timer.millis();
-	if (!force && ((currenttime - _lastreadtime) < 2000)) {
-		return _lastresult; // return last correct measurement
-	}
-	_lastreadtime = currenttime;
-
-	// Reset 40 bits of received data to zero.
-	// https://cdn-shop.adafruit.com/datasheets/DHT22.pdf
-	bytes[0] = bytes[1] = bytes[2] = bytes[3] = bytes[4] = 0;
+float DHT::getHumidity(bool force) {
+	float hum = NAN;
 	
-	// Go into high impedence state to let pull-up raise data line level and start the reading process.
+	if (readSensor(force)) {
+		hum = bytes[0];
+		hum *= 256;
+		hum += bytes[1];
+		hum *= 0.1;
+	}
+	return hum;
+}
+
+bool DHT::readSensor(bool force) {
+	uint32_t currenttime = Timer.millis();
+	if (!force && ((currenttime - lastReadTimestamp) < 2000)) {
+		return lastReading; // return last correct measurement
+	}
+	lastReadTimestamp = currenttime;
+
+	/* 5 bytes will be received from sensor (4 + 1 CRC).
+	 * https://cdn-shop.adafruit.com/datasheets/DHT22.pdf
+	 */
+	for (uint8_t i=0; i<5; i++) bytes[i] = 0;
+	
+	/* let pull-up raise data line level and start the reading process. */
 	setHigh();
 	_delay_ms(250);
 
-	// First set data line low for 20 milliseconds.
-	setOutputMode();
+	/* Start the reading by setting line low to 20ms */
+	setToOutput();
 	setLow();
 	_delay_ms(20);
 
-	volatile uint8_t cycles[80];
-	uint16_t data[256];
+	uint16_t data[84];
 	
 	{
-		InterruptLock lock;
+		cli();
 
 		/* Set the line high for 40us, starting the measurement */
 		setHigh();
 		_delay_us(40);
-		setInputMode();
+		setToInput();
 
 		/* Start recording Timer1 values at changing values. Timer1 values tick in microseconds. */
 		//TODO: So far I have no idea why I can't refernce the PINB using *_pin value;
@@ -138,7 +94,8 @@ bool DHT::read(bool force) {
 		/* This is extremely time critical, running on the edge. Do not make it even a bit more complex,
 		* or the edges are not caught. Interrupt based handlinng does not work either.
 		*/
-		for(uint8_t c=0;c<84;c++){
+		uint8_t c=0;
+		for(c=0;c<84;c++){
 			while(!(PINB ^ myPinb)&(0x1)) {;} //TODO: Here this may get stuck forever! Need to add some protection.
 			myPinb = PINB;
 			data[c] = TCNT1;
@@ -147,6 +104,7 @@ bool DHT::read(bool force) {
 		
 		//TODO: We may have overflow!, check on that.
 		TCNT1 += myTcnt;
+		sei();
 	}
 	
 	for(uint8_t c=0; c<83;c++) {
@@ -187,14 +145,14 @@ bool DHT::read(bool force) {
 
 	// Check we read 40 bits and that the checksum matches.
 	if (bytes[4] == ((bytes[0] + bytes[1] + bytes[2] + bytes[3]) & 0xFF)) {
-		_lastresult = true;
-		return _lastresult;
+		lastReading = true;
+		return lastReading;
 	}
 	else {
 		#ifdef DHT_DEBUG
 		printf_P(PSTR("Checksum failure!"));
 		#endif
-		_lastresult = false;
-		return _lastresult;
+		lastReading = false;
+		return lastReading;
 	}
 }

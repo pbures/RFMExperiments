@@ -66,20 +66,7 @@
 	 #endif
 	 
 	 printf("...Initializing RFM.\r\n");
-
 	 sei();
-	  
-	 DHT myDht(&DHT22_DDR, &DHT22_PORT, &DHT22_PIN, DHT22_BIT);
-	 myDht.begin();
-	 
-	 
-	 while(true){
-		 float temp = myDht.readTemperature(false,true);
-		 float humidity = myDht.readHumidity();
-		 
-		 printf("Temp = %f   Humidity = %f\r\n", (double)temp, (double)humidity);
-		 _delay_ms(500);
-	 }
 	 
 	 for(uint8_t i=0; i<5; i++) {
 		 SET_HIGH(LED_PORT, LED_BIT);
@@ -87,6 +74,9 @@
 		 SET_LOW(LED_PORT, LED_BIT);
 		 _delay_ms(500);
 	 }
+	 
+	 DHT myDht(&DHT22_DDR, &DHT22_PORT, &DHT22_PIN, DHT22_BIT);
+	 myDht.begin();
 	 
 	 RFM69 radio(/*isRFM69HW:*/true, RF69_IRQ_NUM);
 	 #ifdef TRANSCIEVER
@@ -103,7 +93,7 @@
 
 	 printf("\n\r...Reading all registers.\r\n");
 	 radio.readAllRegs();
-	 printf_P(PSTR("...Read all registers read\n\r"));
+	 //printf_P(PSTR("...Read all registers read\n\r"));
 	 
 	 radio.setHighPower(); //uncomment only for RFM69HW!
 	 //radio.encrypt(ENCRYPTKEY);
@@ -112,17 +102,21 @@
 	 //printf_P(PSTR("Sending START command.\r\n"));
 	 
 	 #ifdef TRANSCIEVER
-	 char buffer[32];
-	 uint32_t count=0;
+	 char buffer[22];
+	 
 	 while(true) {
-		 snprintf(buffer,32,"START[%lu]", (unsigned long)count);
-		 printf("\r\n...Sending commad with ACK, attemt: %lu\r\n", (unsigned long) count++);
-		 bool sent = radio.sendWithRetry(RFM_RECEIVER_DEVICE_ID, buffer, strlen(buffer)+1);
-		 printf_P(PSTR("...Command sent: %s\r\n"),
-		 sent ? " successfully" : " unsuccessfully");
+
 		 _delay_ms(2000);
+		 float temperature = myDht.getTemperature();
+		 float humidity = myDht.getHumidity();
+
+		 snprintf(buffer,22,"T[%+07.2f] H[%+07.2f]", (double)temperature, (double)humidity);
+		 printf("%s", buffer);
 		 
-		 for(uint8_t i=0; i<10; i++){
+		 bool sent = radio.sendWithRetry(RFM_RECEIVER_DEVICE_ID, buffer, strlen(buffer)+1);
+		 printf_P(PSTR("...%s\r\n"), sent ? " success" : " failure");
+		 
+		 for(uint8_t i=0; i<15; i++){
 			 SET_HIGH(LED_PORT, LED_BIT);
 			 _delay_ms(30);
 			 SET_LOW(LED_PORT, LED_BIT);
@@ -136,18 +130,17 @@
 	 uint32_t packetCount = 0;
 	 uint8_t ackCount = 0;
 	 
+     printf("Checking if radio received signal...\r\n");
 	 while(true){
-		 printf("Checking if radio received signal...\r\n");
 		 if (radio.receiveDone())
 		 {
-			 printf("#[%lu]", (unsigned long)packetCount);
 			 
-			 printf("[%iu]", radio.SENDERID);
-			 printf(" to [%iu]", radio.TARGETID);
+			 printf("[sender:%i]", radio.SENDERID);
+			 printf(" to [%i/(me:%i)l:%i]", radio.TARGETID, RFM_RECEIVER_DEVICE_ID, radio.DATALEN);
 			 
 			 for (uint8_t i = 0; i < radio.DATALEN; i++)
 			 printf("%c",(char)radio.DATA[i]);
-			 printf("   [RX_RSSI: %d]", radio.RSSI);
+			 printf("[RX_RSSI: %d]\n\r", radio.RSSI);
 			 
 			 if (radio.ACKRequested())
 			 {
@@ -170,9 +163,9 @@
 			 printf("\r\n");
 			 
 		 }
-		 SET_LOW(LED_PORT, LED_BIT);
-		 _delay_ms(1500);
-		 SET_HIGH(LED_PORT, LED_BIT);
+		SET_LOW(LED_PORT, LED_BIT);
+		_delay_ms(1500);
+		SET_HIGH(LED_PORT, LED_BIT);
 	 }
 	 #endif
 	 

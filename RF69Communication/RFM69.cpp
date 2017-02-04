@@ -101,9 +101,11 @@ bool RFM69::initialize(uint8_t freqBand, uint8_t nodeID, uint8_t networkID) {
 		/* 0x2F */{ REG_SYNCVALUE1, 0x2D }, // attempt to make this compatible with sync1 byte of RFM12B lib
 		/* 0x30 */{ REG_SYNCVALUE2, networkID }, // NETWORK ID
 		/* 0x37 */{ REG_PACKETCONFIG1, RF_PACKET1_FORMAT_VARIABLE
-			| RF_PACKET1_DCFREE_OFF | RF_PACKET1_CRC_ON
-			| RF_PACKET1_CRCAUTOCLEAR_ON
-		| RF_PACKET1_ADRSFILTERING_OFF },
+			| RF_PACKET1_DCFREE_OFF | 
+//Orig			RF_PACKET1_CRC_ON | RF_PACKET1_CRCAUTOCLEAR_ON
+//			RF_PACKET1_CRC_OFF | RF_PACKET1_CRCAUTOCLEAR_OFF  /* This one receives sth, but garbage */
+			RF_PACKET1_CRC_OFF | RF_PACKET1_CRCAUTOCLEAR_OFF | RF_PACKET1_ADRSFILTERING_OFF },
+//Orig		| RF_PACKET1_ADRSFILTERING_OFF },
 		/* 0x38 */{ REG_PAYLOADLENGTH, 66 }, // in variable length mode: the max frame size, not used in TX
 		///* 0x39 */ { REG_NODEADRS, nodeID }, // turned off because we're not using address filtering
 		/* 0x3C */{ REG_FIFOTHRESH,
@@ -153,7 +155,7 @@ bool RFM69::initialize(uint8_t freqBand, uint8_t nodeID, uint8_t networkID) {
 
 		/* Enable INT0 interrupt on rising edge */
 		SET_INPUT_MODE(RF69_DIO0_DDR, RF69_DIO0_BIT);
-		SET_HIGH(RF69_DIO0_PORT, RF69_DIO0_BIT);
+		//SET_HIGH(RF69_DIO0_PORT, RF69_DIO0_BIT);
 
 		EIMSK |= (1 << INT0);
 		EICRA |= ((1 << ISC01) | (1 << ISC00));
@@ -271,9 +273,7 @@ bool RFM69::initialize(uint8_t freqBand, uint8_t nodeID, uint8_t networkID) {
 		return false;
 	}
 
-	void RFM69::send(uint8_t toAddress, const void* buffer, uint8_t bufferSize,
-	bool requestACK) {
-		printf("void send()---\n\r");
+	void RFM69::send(uint8_t toAddress, const void* buffer, uint8_t bufferSize,	bool requestACK) {
 		writeReg(REG_PACKETCONFIG2,
 		(readReg(REG_PACKETCONFIG2) & 0xFB) | RF_PACKET2_RXRESTART); // avoid RX deadlocks
 
@@ -281,16 +281,16 @@ bool RFM69::initialize(uint8_t freqBand, uint8_t nodeID, uint8_t networkID) {
 		uint8_t count = 0;
 
 		while (true){
-			printf("St %d -->\r\n", count);
+			/*printf("St %d -->", count);*/
 
-			if (canSend()) { printf("CS.\r\n"); break; }
-			if (Timer.millis() - now >= RF69_CSMA_LIMIT_MS) { printf("TO.\r\n"); break; }
-			if (count++ > 100) { printf("CO.\r\n"); break; }
+			if (canSend()) { /*printf("CS ")*/; break; }
+			if (Timer.millis() - now >= RF69_CSMA_LIMIT_MS) { /*printf("TO ")*/; break; }
+			if (count++ > 100) { /*printf("CO ")*/; break; }
 
 			receiveDone();
 		}
 
-		printf("<--St %d\n\r", count);
+		/*printf("<--St %d\n\r", count);*/
 		sendFrame(toAddress, buffer, bufferSize, requestACK, false);
 	}
 
@@ -300,9 +300,9 @@ bool RFM69::initialize(uint8_t freqBand, uint8_t nodeID, uint8_t networkID) {
 	// The reason for the semi-automaton is that the lib is interrupt driven and
 	// requires user action to read the received data and decide what to do with it
 	// replies usually take only 5..8ms at 50kbps@915MHz
-	bool RFM69::sendWithRetry(uint8_t toAddress, const void* buffer,
-	uint8_t bufferSize, uint8_t retries, uint8_t retryWaitTime) {
+	bool RFM69::sendWithRetry(uint8_t toAddress, const void* buffer, uint8_t bufferSize, uint8_t retries, uint8_t retryWaitTime) {
 		uint32_t sentTime;
+		
 		for (uint8_t i = 0; i <= retries; i++) {
 			send(toAddress, buffer, bufferSize, true);
 			sentTime = Timer.millis();
@@ -318,9 +318,15 @@ bool RFM69::initialize(uint8_t freqBand, uint8_t nodeID, uint8_t networkID) {
 
 	// should be polled immediately after sending a packet with ACK request
 	bool RFM69::ACKReceived(uint8_t fromNodeID) {
-		if (receiveDone())
-		return (SENDERID == fromNodeID || fromNodeID == RF69_BROADCAST_ADDR)
-		&& ACK_RECEIVED;
+		//printf("S: %x", SREG);
+		if (receiveDone()){
+			
+			volatile uint8_t fNid = fromNodeID;
+			volatile uint8_t sId = SENDERID;
+			volatile uint8_t ar = ACK_RECEIVED;
+			
+			return (SENDERID == fromNodeID || fromNodeID == RF69_BROADCAST_ADDR) && ACK_RECEIVED;
+		}
 		return false;
 	}
 
@@ -350,9 +356,9 @@ bool RFM69::initialize(uint8_t freqBand, uint8_t nodeID, uint8_t networkID) {
 
 		setMode(RF69_MODE_STANDBY); // turn off receiver to prevent reception while filling fifo
 
-		while ((readReg(REG_IRQFLAGS1) & RF_IRQFLAGS1_MODEREADY) == 0x00)
-		; // wait for ModeReady
+		while ((readReg(REG_IRQFLAGS1) & RF_IRQFLAGS1_MODEREADY) == 0x00) {;} // wait for ModeReady
 		writeReg(REG_DIOMAPPING1, RF_DIOMAPPING1_DIO0_00); // DIO0 is "Packet Sent"
+		
 		if (bufferSize > RF69_MAX_DATA_LEN)
 		bufferSize = RF69_MAX_DATA_LEN;
 
@@ -379,26 +385,26 @@ bool RFM69::initialize(uint8_t freqBand, uint8_t nodeID, uint8_t networkID) {
 		uint32_t txStart = Timer.millis();
 		while (true) {
 			if ((RF69_DIO0_PIN & RF69_DIO0_BIT) != 0 ) {
-				printf("Received success.\r\n");
+				//printf("TX success.\r\n");
 				break;
-			} else {
+				} else {
 				//Wait for DIO0 to turn HIGH signalling transmission finish
-				printf("Waiting for success send.\r\n");
+				//printf("Waiting for.\r\n");
 			}
 			if (Timer.millis() - txStart > RF69_TX_LIMIT_MS) {
-				printf("Timeout during waiting for DIO0 send success confirmation");
+				printf("Timeout during waiting for DIO0 send TX success\r\n");
 				break;
 			}
 		}
+		
+		_delay_ms(30);
 		setMode(RF69_MODE_STANDBY);
 	}
 
 	// internal function - interrupt gets called when a packet is received
 	void RFM69::interruptHandler() {
-		//pinMode(4, OUTPUT);
-		//digitalWrite(4, 1);
-		if (_mode == RF69_MODE_RX
-		&& (readReg(REG_IRQFLAGS2) & RF_IRQFLAGS2_PAYLOADREADY)) {
+		
+		if (_mode == RF69_MODE_RX && (readReg(REG_IRQFLAGS2) & RF_IRQFLAGS2_PAYLOADREADY)) {
 			//RSSI = readRSSI();
 			setMode(RF69_MODE_STANDBY);
 			select();
@@ -406,14 +412,14 @@ bool RFM69::initialize(uint8_t freqBand, uint8_t nodeID, uint8_t networkID) {
 			PAYLOADLEN = SPI.transfer(0);
 			PAYLOADLEN = PAYLOADLEN > 66 ? 66 : PAYLOADLEN; // precaution
 			TARGETID = SPI.transfer(0);
-			if (!(_promiscuousMode || TARGETID == _address
-			|| TARGETID == RF69_BROADCAST_ADDR) // match this node's address, or broadcast address or anything in promiscuous mode
-			|| PAYLOADLEN < 3) // address situation could receive packets that are malformed and don't fit this libraries extra fields
+			
+			// match this node's address, or broadcast address or anything in promiscuous mode
+			// address situation could receive packets that are malformed and don't fit this libraries extra fields
+			if (!(_promiscuousMode || TARGETID == _address || TARGETID == RF69_BROADCAST_ADDR) || PAYLOADLEN < 3) 
 			{
 				PAYLOADLEN = 0;
 				unselect();
 				receiveBegin();
-				//digitalWrite(4, 0);
 				return;
 			}
 
@@ -423,6 +429,9 @@ bool RFM69::initialize(uint8_t freqBand, uint8_t nodeID, uint8_t networkID) {
 
 			ACK_RECEIVED = CTLbyte & RFM69_CTL_SENDACK; // extract ACK-received flag
 			ACK_REQUESTED = CTLbyte & RFM69_CTL_REQACK; // extract ACK-requested flag
+			
+			volatile uint8_t ctl = ACK_RECEIVED;
+			volatile uint8_t pldLen = PAYLOADLEN;
 
 			interruptHook(CTLbyte); // TWS: hook to derived class interrupt function
 
@@ -465,23 +474,20 @@ bool RFM69::initialize(uint8_t freqBand, uint8_t nodeID, uint8_t networkID) {
 
 	// checks if a packet was received and/or puts transceiver in receive (ie RX or listen) mode
 	bool RFM69::receiveDone() {
-		uint8_t sreg = SREG;
+		volatile uint8_t sreg = SREG;
 
-		//TODO: Uncomment this as this is so in the original. But why!. Disabling interrupts
-		// will stop us the timer!.
-
+		//printf("Mode: %x, m: %x\n\r", (readReg(REG_OPMODE) & 0b00011100)>>2, _mode);
 		cli(); // re-enabled in unselect() via setMode() or via receiveBegin()
-
 		if (_mode == RF69_MODE_RX && PAYLOADLEN > 0) {
-					printf("RX,Pld.\r\n");
+			//printf(" RXP");
 			setMode(RF69_MODE_STANDBY); // enables interrupts
 			return true;
 			} else if (_mode == RF69_MODE_RX) { // already in RX no payload yet
-					printf("RX,noPld.\r\n");
+			//printf(" RXnP");
 			SREG = sreg;
 			return false;
 		}
-			printf("NoRx\r\n");
+		//printf(" nRX");
 
 		receiveBegin();
 		return false;
