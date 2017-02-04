@@ -41,7 +41,6 @@
  static int uart_putchar(char c, FILE *stream);
  static FILE mystdout = {0};
 
- // http://www.nongnu.org/avr-libc/user-manual/group__avr__stdio.html
  static int uart_putchar(char c, FILE *stream) {
 	 txByte(c);
 	 return 0;
@@ -91,15 +90,14 @@
 		 printf("...RF69 Failed.\r\n");
 	 }
 
+	 #ifdef DEBUG
 	 printf("\n\r...Reading all registers.\r\n");
 	 radio.readAllRegs();
-	 //printf_P(PSTR("...Read all registers read\n\r"));
-	 
-	 radio.setHighPower(); //uncomment only for RFM69HW!
-	 //radio.encrypt(ENCRYPTKEY);
+	 #endif
+	 	 
+	 radio.setHighPower();
+	 radio.encrypt(ENCRYPTKEY);
 	 //radio.enableAutoPower(ATC_RSSI);
-	 //printf_P(PSTR("Auto power enabled.\r\n"));
-	 //printf_P(PSTR("Sending START command.\r\n"));
 	 
 	 #ifdef TRANSCIEVER
 	 char buffer[22];
@@ -107,6 +105,7 @@
 	 while(true) {
 
 		 _delay_ms(2000);
+		 
 		 float temperature = myDht.getTemperature();
 		 float humidity = myDht.getHumidity();
 
@@ -117,11 +116,13 @@
 		 printf_P(PSTR("...%s\r\n"), sent ? " success" : " failure");
 		 
 		 for(uint8_t i=0; i<15; i++){
-			 //SET_HIGH(LED_PORT, LED_BIT);
+			 SET_HIGH(LED_PORT, LED_BIT);
 			 _delay_ms(30);
-			 //SET_LOW(LED_PORT, LED_BIT);
+			 SET_LOW(LED_PORT, LED_BIT);
 			 _delay_ms(30);
 		 }
+		 
+		 radio.sleep();
 	 }
 	 #endif
 	 
@@ -130,7 +131,10 @@
 	 uint32_t packetCount = 0;
 	 uint8_t ackCount = 0;
 	 
+	 #ifdef DEBUG
      printf("Checking if radio received signal...\r\n");
+	 #endif
+	 
 	 while(true){
 		 if (radio.receiveDone())
 		 {
@@ -147,19 +151,8 @@
 				 uint8_t theNodeID = radio.SENDERID;
 				 radio.sendACK();
 				 printf_P(PSTR(" ACK"));
-
-				 // When a node requests an ACK, respond to the ACK
-				 // and also send a packet requesting an ACK (every 3rd one only)
-				 // This way both TX/RX NODE functions are tested on 1 end at the GATEWAY
-				 //if (ackCount++%3==0)
-				 //{
-					 //printf(" Pinging node %d - ACK...", theNodeID);
-					 //_delay_ms(3000);
-					 //if (radio.sendWithRetry(theNodeID, "ACK TEST", 8, 0))  // 0 = only 1 attempt, no retries
-					 //printf_P(PSTR("ok!"));
-					 //else printf_P(PSTR("nothing"));
-				 //}
 			 }
+			 
 			 printf("\r\n");
 			_delay_ms(500);
 		 }

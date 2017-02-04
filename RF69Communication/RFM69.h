@@ -82,8 +82,8 @@ class RFM69 {
     }
 
     bool initialize(uint8_t freqBand, uint8_t ID, uint8_t networkID=1);
-    void setAddress(uint8_t addr);
-    void setNetwork(uint8_t networkID);
+    void setNodeAddress(uint8_t addr);
+    void setNetworkId(uint8_t networkID);
     bool canSend();
     virtual void send(uint8_t toAddress, const void* buffer, uint8_t bufferSize, bool requestACK=false);
     virtual bool sendWithRetry(uint8_t toAddress, const void* buffer, uint8_t bufferSize, uint8_t retries=2, uint16_t retryWaitTime=1000); // was 40ms roundtrip req for 61byte packets
@@ -91,8 +91,8 @@ class RFM69 {
     bool ACKReceived(uint8_t fromNodeID);
     bool ACKRequested();
     virtual void sendACK(const void* buffer = "", uint8_t bufferSize=0);
-    uint32_t getFrequency();
-    void setFrequency(uint32_t freqHz);
+    uint32_t getFrequencyHz();
+    void setFrequencyHz(uint32_t freqHz);
     void encrypt(const char* key);
     void setCS(uint8_t newSPISlaveSelect);
     int16_t readRSSI(bool forceTrigger=false);
@@ -134,7 +134,7 @@ class RFM69 {
     virtual void setHighPowerRegs(bool onOff);
     virtual void select();
     virtual void unselect();
-    inline void maybeInterrupts();
+    inline void enaleInterrupts();
 };
 
 #endif

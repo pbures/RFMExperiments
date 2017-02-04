@@ -35,7 +35,7 @@
 #define GATEWAYID 3
 #define ATC_RSSI -75
 
-#define ENCRYPTKEY "neverG1v3Up"
+#define ENCRYPTKEY "neverG1v3UpOhYes"
 
 #endif /* CONFIG_H_ */
 
