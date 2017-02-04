@@ -140,13 +140,13 @@
 			 
 			 for (uint8_t i = 0; i < radio.DATALEN; i++)
 			 printf("%c",(char)radio.DATA[i]);
-			 printf("[RX_RSSI: %d]\n\r", radio.RSSI);
+			 printf("[RX_RSSI: %d]", radio.RSSI);
 			 
 			 if (radio.ACKRequested())
 			 {
 				 uint8_t theNodeID = radio.SENDERID;
 				 radio.sendACK();
-				 printf_P(PSTR(" - ACK sent.\r\n"));
+				 printf_P(PSTR(" ACK"));
 
 				 // When a node requests an ACK, respond to the ACK
 				 // and also send a packet requesting an ACK (every 3rd one only)
@@ -160,6 +160,7 @@
 					 //else printf_P(PSTR("nothing"));
 				 //}
 			 }
+			 printf("\r\n");
 			_delay_ms(500);
 		 }
 	 }
