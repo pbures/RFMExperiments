@@ -117,16 +117,16 @@
 		 printf_P(PSTR("...%s\r\n"), sent ? " success" : " failure");
 		 
 		 for(uint8_t i=0; i<15; i++){
-			 SET_HIGH(LED_PORT, LED_BIT);
+			 //SET_HIGH(LED_PORT, LED_BIT);
 			 _delay_ms(30);
-			 SET_LOW(LED_PORT, LED_BIT);
+			 //SET_LOW(LED_PORT, LED_BIT);
 			 _delay_ms(30);
 		 }
 	 }
 	 #endif
 	 
 	 #ifdef RECEIVER
-	 radio.promiscuous(true);
+	 radio.promiscuous(false);
 	 uint32_t packetCount = 0;
 	 uint8_t ackCount = 0;
 	 
@@ -146,26 +146,22 @@
 			 {
 				 uint8_t theNodeID = radio.SENDERID;
 				 radio.sendACK();
-				 printf_P(PSTR(" - ACK sent."));
+				 printf_P(PSTR(" - ACK sent.\r\n"));
 
 				 // When a node requests an ACK, respond to the ACK
 				 // and also send a packet requesting an ACK (every 3rd one only)
 				 // This way both TX/RX NODE functions are tested on 1 end at the GATEWAY
-				 if (ackCount++%3==0)
-				 {
-					 printf(" Pinging node %d - ACK...", theNodeID);
-					 _delay_ms(3000);
-					 if (radio.sendWithRetry(theNodeID, "ACK TEST", 8, 0))  // 0 = only 1 attempt, no retries
-					 printf_P(PSTR("ok!"));
-					 else printf_P(PSTR("nothing"));
-				 }
+				 //if (ackCount++%3==0)
+				 //{
+					 //printf(" Pinging node %d - ACK...", theNodeID);
+					 //_delay_ms(3000);
+					 //if (radio.sendWithRetry(theNodeID, "ACK TEST", 8, 0))  // 0 = only 1 attempt, no retries
+					 //printf_P(PSTR("ok!"));
+					 //else printf_P(PSTR("nothing"));
+				 //}
 			 }
-			 printf("\r\n");
-			 
+			_delay_ms(500);
 		 }
-		SET_LOW(LED_PORT, LED_BIT);
-		_delay_ms(1500);
-		SET_HIGH(LED_PORT, LED_BIT);
 	 }
 	 #endif
 	 

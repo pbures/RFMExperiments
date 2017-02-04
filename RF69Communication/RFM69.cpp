@@ -102,10 +102,9 @@ bool RFM69::initialize(uint8_t freqBand, uint8_t nodeID, uint8_t networkID) {
 		/* 0x30 */{ REG_SYNCVALUE2, networkID }, // NETWORK ID
 		/* 0x37 */{ REG_PACKETCONFIG1, RF_PACKET1_FORMAT_VARIABLE
 			| RF_PACKET1_DCFREE_OFF | 
-//Orig			RF_PACKET1_CRC_ON | RF_PACKET1_CRCAUTOCLEAR_ON
-//			RF_PACKET1_CRC_OFF | RF_PACKET1_CRCAUTOCLEAR_OFF  /* This one receives sth, but garbage */
-			RF_PACKET1_CRC_OFF | RF_PACKET1_CRCAUTOCLEAR_OFF | RF_PACKET1_ADRSFILTERING_OFF },
-//Orig		| RF_PACKET1_ADRSFILTERING_OFF },
+//Orig		RF_PACKET1_CRC_ON | RF_PACKET1_CRCAUTOCLEAR_ON | RF_PACKET1_ADRSFILTERING_OFF },
+			RF_PACKET1_CRC_ON | RF_PACKET1_CRCAUTOCLEAR_OFF | RF_PACKET1_ADRSFILTERING_OFF  }, /* This one receives sth, but garbage */ 
+//Works		RF_PACKET1_CRC_OFF | RF_PACKET1_CRCAUTOCLEAR_OFF | RF_PACKET1_ADRSFILTERING_OFF},
 		/* 0x38 */{ REG_PAYLOADLENGTH, 66 }, // in variable length mode: the max frame size, not used in TX
 		///* 0x39 */ { REG_NODEADRS, nodeID }, // turned off because we're not using address filtering
 		/* 0x3C */{ REG_FIFOTHRESH,
@@ -400,7 +399,7 @@ bool RFM69::initialize(uint8_t freqBand, uint8_t nodeID, uint8_t networkID) {
 		}
 		SET_HIGH(LED_PORT, LED_BIT);
 		SET_LOW(LED_PORT, LED_BIT);
-		//_delay_ms(20);
+		_delay_ms(20);
 		setMode(RF69_MODE_STANDBY);
 		SET_HIGH(LED_PORT, LED_BIT);
 		SET_LOW(LED_PORT, LED_BIT);
