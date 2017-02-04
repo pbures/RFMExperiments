@@ -69,9 +69,9 @@
 	 
 	 for(uint8_t i=0; i<5; i++) {
 		 SET_HIGH(LED_PORT, LED_BIT);
-		 _delay_ms(500);
+		 _delay_ms(200);
 		 SET_LOW(LED_PORT, LED_BIT);
-		 _delay_ms(500);
+		 _delay_ms(200);
 	 }
 	 
 	 DHT myDht(&DHT22_DDR, &DHT22_PORT, &DHT22_PIN, DHT22_BIT);
@@ -91,8 +91,8 @@
 	 }
 
 	 #ifdef DEBUG
-	 printf("\n\r...Reading all registers.\r\n");
-	 radio.readAllRegs();
+	 //printf("\n\r...Reading all registers.\r\n");
+	 //radio.readAllRegs();
 	 #endif
 	 	 
 	 radio.setHighPower();
