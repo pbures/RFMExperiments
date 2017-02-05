@@ -104,15 +104,7 @@ bool RFM69::initialize(uint8_t freqBand, uint8_t nodeID, uint8_t networkID) {
 		
 		/* 0x38 */{ REG_PAYLOADLENGTH, 66 }, // in variable length mode: the max frame size, not used in TX
 		
-		#ifdef RECEIVER
-		/* 0x39 */{ REG_NODEADRS, RFM_RECEIVER_DEVICE_ID },
-		#else
-		#ifdef TRANSCIEVER
-		/* 0x39 */{ REG_NODEADRS, RFM_TRANSCIEVER_DEVICE_ID },
-		#else
-		#error "Either RECEIVER or TRANSCIEVER macro must be defined"
-		#endif
-		#endif
+		/* 0x39 */{ REG_NODEADRS, nodeID},
 		
 		/* 0x3C */{ REG_FIFOTHRESH, RF_FIFOTHRESH_TXSTART_FIFONOTEMPTY | RF_FIFOTHRESH_VALUE }, // TX on FIFO not empty
 		/* 0x3D */{ REG_PACKETCONFIG2, RF_PACKET2_RXRESTARTDELAY_2BITS | RF_PACKET2_AUTORXRESTART_ON | RF_PACKET2_AES_OFF }, // RXRESTARTDELAY must match transmitter PA ramp-down time (bitrate dependent)

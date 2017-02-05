@@ -48,8 +48,10 @@
 
  int main(void)
  {
-	 SET_OUTPUT_MODE(LED_DDR, LED_BIT);
-	 SET_LOW(LED_PORT, LED_BIT);
+	 SET_OUTPUT_MODE(GRN_LED_DDR, GRN_LED_BIT);
+	 SET_LOW(GRN_LED_PORT, GRN_LED_BIT);
+	 SET_OUTPUT_MODE(RED_LED_DDR, RED_LED_BIT);
+	 SET_LOW(RED_LED_PORT, RED_LED_BIT);
 	 
 	 SET_OUTPUT_MODE(RF69_SPI_CS_DDR, RF69_SPI_CS_BIT);
 	 SET_HIGH(RF69_SPI_CS_PORT, RF69_SPI_CS_BIT);
@@ -68,9 +70,9 @@
 	 sei();
 	 
 	 for(uint8_t i=0; i<5; i++) {
-		 SET_HIGH(LED_PORT, LED_BIT);
+		 SET_HIGH(GRN_LED_PORT, GRN_LED_BIT);
 		 _delay_ms(200);
-		 SET_LOW(LED_PORT, LED_BIT);
+		 SET_LOW(GRN_LED_PORT, GRN_LED_BIT);
 		 _delay_ms(200);
 	 }
 	 
@@ -115,14 +117,18 @@
 		 bool sent = radio.sendWithRetry(RFM_RECEIVER_DEVICE_ID, buffer, strlen(buffer)+1);
 		 printf_P(PSTR("...%s\r\n"), sent ? " success" : " failure");
 		 
-		 for(uint8_t i=0; i<15; i++){
-			 SET_HIGH(LED_PORT, LED_BIT);
-			 _delay_ms(30);
-			 SET_LOW(LED_PORT, LED_BIT);
-			 _delay_ms(30);
+		 if (sent) {
+			 SET_HIGH(RED_LED_PORT, RED_LED_BIT);
+			 _delay_ms(100);
+			 SET_LOW(RED_LED_PORT, RED_LED_BIT);
+		 } else {
+			 SET_HIGH(GRN_LED_PORT, GRN_LED_BIT);
+			 _delay_ms(100);
+			 SET_LOW(GRN_LED_PORT, GRN_LED_BIT);
 		 }
 		 
 		 radio.sleep();
+		 _delay_ms(1000);
 	 }
 	 #endif
 	 

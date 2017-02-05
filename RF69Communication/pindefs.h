@@ -31,10 +31,15 @@
 #define DHT22_BIT PB0
 
 /* Pin the control LED */
-#define LED_DDR 	DDRB
-#define LED_PORT 	PORTB
-#define LED_PIN 	PINB
-#define LED_BIT 	PB1
+#define RED_LED_DDR 	DDRB
+#define RED_LED_PORT 	PORTB
+#define RED_LED_PIN 	PINB
+#define RED_LED_BIT 	PB1
+
+#define GRN_LED_DDR 	DDRB
+#define GRN_LED_PORT 	PORTB
+#define GRN_LED_PIN 	PINB
+#define GRN_LED_BIT 	PB6
 
 #define SPI_SS_DDR  DDRB
 #define SPI_SS_PORT PORTB
