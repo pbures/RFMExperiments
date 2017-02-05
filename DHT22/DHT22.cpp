@@ -15,9 +15,6 @@ _ddr(ddr), _port(port), _pin(pin), _bit(bit)
 
 void DHT::begin() {
 	
-	DDRD |= (1<<PORTD7);
-	PORTD &= ~(1<<PORTD7);
-	
 	setToInput();
 	setHigh();
 	
@@ -97,9 +94,9 @@ bool DHT::readSensor(bool force) {
 		uint8_t c=0;
 		for(c=0;c<84;c++){
 			while(!(PINB ^ myPinb)&(0x1)) {;} //TODO: Here this may get stuck forever! Need to add some protection.
-			myPinb = PINB;
+//			while(!(((*_pin) ^ myPinb)&(0x1))) {;} //TODO: Here this may get stuck forever! Need to add some protection.
+			myPinb = *_pin;
 			data[c] = TCNT1;
-			//PORTD ^= (1<<PORTD7);
 		}
 		
 		//TODO: We may have overflow!, check on that.

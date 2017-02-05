@@ -47,21 +47,14 @@
 	 return 0;
  }
 
-
-
-IOPin rf69SpiCsPin (&DDRB, &PORTB, &PINB, PINB2);
-IOPin rf69DIO0Pin (&DDRD, &PORTD, &PIND, PIND2);
-
  int main(void)
  {
-	 SET_OUTPUT_MODE(GRN_LED_DDR, GRN_LED_BIT);
-	 SET_LOW(GRN_LED_PORT, GRN_LED_BIT);
-	 SET_OUTPUT_MODE(RED_LED_DDR, RED_LED_BIT);
-	 SET_LOW(RED_LED_PORT, RED_LED_BIT);
+	 grnLed.setToOutput();
+	 grnLed.setLow();
+	 redLed.setToOutput();
+	 redLed.setLow();
 	 
-	 //SET_OUTPUT_MODE(RF69_SPI_CS_DDR, RF69_SPI_CS_BIT);
 	 rf69SpiCsPin.setToOutput();
-	 //SET_HIGH(RF69_SPI_CS_PORT, RF69_SPI_CS_BIT);
 	 rf69SpiCsPin.setHigh();
 	 
 	 initUart();
@@ -78,16 +71,16 @@ IOPin rf69DIO0Pin (&DDRD, &PORTD, &PIND, PIND2);
 	 sei();
 	 
 	 for(uint8_t i=0; i<5; i++) {
-		 SET_HIGH(GRN_LED_PORT, GRN_LED_BIT);
+		 grnLed.setHigh();
 		 _delay_ms(200);
-		 SET_LOW(GRN_LED_PORT, GRN_LED_BIT);
+		 grnLed.setLow();
 		 _delay_ms(200);
 	 }
 	 
-	 DHT myDht(&DHT22_DDR, &DHT22_PORT, &DHT22_PIN, DHT22_BIT);
+	 DHT myDht(&dht22Pin);
 	 myDht.begin();
 	 
-	 RFM69 radio(/*isRFM69HW:*/true, &rf69SpiCsPin, &rf69DIO0Pin);
+	 RFM69 radio(true, &rf69SpiCsPin, &rf69DIO0Pin);
 	 
 	 #ifdef TRANSCIEVER
 	 bool res = radio.initialize(RF69_868MHZ, RFM_TRANSCIEVER_DEVICE_ID, RFM_NETWORK_ID);
@@ -126,14 +119,17 @@ IOPin rf69DIO0Pin (&DDRD, &PORTD, &PIND, PIND2);
 		 bool sent = radio.sendWithRetry(RFM_RECEIVER_DEVICE_ID, buffer, strlen(buffer)+1);
 		 printf_P(PSTR("...%s\r\n"), sent ? " success" : " failure");
 		 
+		 IOPin *indicator;
+		 indicator = (sent ? (&grnLed): (&redLed));
+		 
 		 if (sent) {
-			 SET_HIGH(RED_LED_PORT, RED_LED_BIT);
+			 grnLed.setHigh();
 			 _delay_ms(100);
-			 SET_LOW(RED_LED_PORT, RED_LED_BIT);
+			 grnLed.setLow();
 		 } else {
-			 SET_HIGH(GRN_LED_PORT, GRN_LED_BIT);
+			 redLed.setHigh();
 			 _delay_ms(100);
-			 SET_LOW(GRN_LED_PORT, GRN_LED_BIT);
+			 redLed.setLow();
 		 }
 		 
 		 radio.sleep();

@@ -30,10 +30,7 @@
 
 #define RFM_TRANSCIEVER_DEVICE_ID 7
 #define RFM_RECEIVER_DEVICE_ID 5
-
 #define RFM_NETWORK_ID 1
-#define GATEWAYID 3
-#define ATC_RSSI -75
 
 #define ENCRYPTKEY "neverG1v3UpOhYes"
 

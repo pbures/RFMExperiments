@@ -10,6 +10,7 @@ written by Adafruit Industries
 #include <avr/pgmspace.h>
 #include <util/delay.h>
 #include <TimerClass.h>
+#include <IOPin.h>
 
 // Uncomment to enable printing out nice debug messages.
 //#define DHT_DEBUG
@@ -21,12 +22,22 @@ written by Adafruit Industries
 class DHT {
 	public:
 	DHT(volatile uint8_t *ddr, volatile uint8_t *port, volatile uint8_t *pin, uint8_t bit);
+	
+	DHT(IOPin *dataPin) : dataPin(dataPin) {
+		_ddr = dataPin->ddr;
+		_port = dataPin->port;
+		_pin = dataPin->pin;
+		_bit = dataPin->bit;
+	};
+		
 	void begin(void);
 	float getTemperature(bool force=false);
 	float getHumidity(bool force=false);
 	bool readSensor(bool force=false);
 
 	private:
+	IOPin *dataPin;
+	
 	uint8_t bytes[5];
 	volatile uint8_t *_ddr, *_port, *_pin;
 	uint8_t _bit;
