@@ -37,6 +37,7 @@
  #include "TimerClass.h"
  #include "pindefs.h"
  #include <DHT22.h>
+ #include <IOPin.h>
 
  static int uart_putchar(char c, FILE *stream);
  static FILE mystdout = {0};
@@ -46,6 +47,11 @@
 	 return 0;
  }
 
+
+
+IOPin rf69SpiCsPin (&DDRB, &PORTB, &PINB, PINB2);
+IOPin rf69DIO0Pin (&DDRD, &PORTD, &PIND, PIND2);
+
  int main(void)
  {
 	 SET_OUTPUT_MODE(GRN_LED_DDR, GRN_LED_BIT);
@@ -53,8 +59,10 @@
 	 SET_OUTPUT_MODE(RED_LED_DDR, RED_LED_BIT);
 	 SET_LOW(RED_LED_PORT, RED_LED_BIT);
 	 
-	 SET_OUTPUT_MODE(RF69_SPI_CS_DDR, RF69_SPI_CS_BIT);
-	 SET_HIGH(RF69_SPI_CS_PORT, RF69_SPI_CS_BIT);
+	 //SET_OUTPUT_MODE(RF69_SPI_CS_DDR, RF69_SPI_CS_BIT);
+	 rf69SpiCsPin.setToOutput();
+	 //SET_HIGH(RF69_SPI_CS_PORT, RF69_SPI_CS_BIT);
+	 rf69SpiCsPin.setHigh();
 	 
 	 initUart();
 	 fdev_setup_stream(&mystdout, uart_putchar, NULL, _FDEV_SETUP_WRITE);
@@ -79,7 +87,8 @@
 	 DHT myDht(&DHT22_DDR, &DHT22_PORT, &DHT22_PIN, DHT22_BIT);
 	 myDht.begin();
 	 
-	 RFM69 radio(/*isRFM69HW:*/true, RF69_IRQ_NUM);
+	 RFM69 radio(/*isRFM69HW:*/true, &rf69SpiCsPin, &rf69DIO0Pin);
+	 
 	 #ifdef TRANSCIEVER
 	 bool res = radio.initialize(RF69_868MHZ, RFM_TRANSCIEVER_DEVICE_ID, RFM_NETWORK_ID);
 	 #else

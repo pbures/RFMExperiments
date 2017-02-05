@@ -27,7 +27,7 @@
 #include "RFM69registers.h"
 #include "SPI.h"
 #include "TimerClass.h"
-#include "config.h"
+//#include "config.h"
 
 volatile uint8_t RFM69::DATA[RF69_MAX_DATA_LEN];
 volatile uint8_t RFM69::_mode;        // current transceiver state
@@ -115,9 +115,11 @@ bool RFM69::initialize(uint8_t freqBand, uint8_t nodeID, uint8_t networkID) {
 
 		SPI.begin();
 
-		SET_OUTPUT_MODE(RF69_SPI_CS_DDR, RF69_SPI_CS_BIT);
-		SET_HIGH(RF69_SPI_CS_PORT, RF69_SPI_CS_BIT);
-
+		//SET_OUTPUT_MODE(RF69_SPI_CS_DDR, RF69_SPI_CS_BIT);
+		spiCsPin->setToOutput();
+		//SET_HIGH(RF69_SPI_CS_PORT, RF69_SPI_CS_BIT);
+		spiCsPin->setHigh();
+		
 		printf("RFM69 Init started.\r\n");
 		uint32_t start = Timer.millis();
 		uint8_t timeout = 50;
@@ -147,7 +149,8 @@ bool RFM69::initialize(uint8_t freqBand, uint8_t nodeID, uint8_t networkID) {
 		_address = nodeID;
 
 		/* INT0 on rising edge */
-		SET_INPUT_MODE(RF69_DIO0_DDR, RF69_DIO0_BIT);
+		//SET_INPUT_MODE(RF69_DIO0, RF69_DIO0_BIT);
+		DIO0Pin->setToInput();
 
 		EIMSK |= (1 << INT0);
 		EICRA |= ((1 << ISC01) | (1 << ISC00));
@@ -367,7 +370,8 @@ bool RFM69::initialize(uint8_t freqBand, uint8_t nodeID, uint8_t networkID) {
 		 * nothing as we are in TX mode, not in RX mode 
 		 */
 		while (true) {
-			if ((RF69_DIO0_PIN & (1<<RF69_DIO0_BIT)) != 0 ) {
+			//if ((RF69_DIO0_PIN & (1<<RF69_DIO0_BIT)) != 0 ) {
+			if ( ((*(DIO0Pin->pin)) & (1 << DIO0Pin->bit)) != 0 ) {
 				break;
 			}
 			
@@ -528,11 +532,14 @@ bool RFM69::initialize(uint8_t freqBand, uint8_t nodeID, uint8_t networkID) {
 		SPI.setDataMode(SPI_MODE0);
 		SPI.setBitOrder(MSBFIRST);
 		SPI.setClockDivider(SPI_CLOCK_DIV4); // decided to slow down from DIV2 after SPI stalling in some instances, especially visible on mega1284p when RFM69 and FLASH chip both present
-		SET_LOW(RF69_SPI_CS_PORT, RF69_SPI_CS_BIT);
+		
+		//SET_LOW(RF69_SPI_CS_PORT, RF69_SPI_CS_BIT);
+		spiCsPin->setLow();
 	}
 
 	void RFM69::unselect() {
-		SET_HIGH(RF69_SPI_CS_PORT, RF69_SPI_CS_BIT);
+		//SET_HIGH(RF69_SPI_CS_PORT, RF69_SPI_CS_BIT);
+		spiCsPin->setHigh();
 
 		#if defined (SPCR) && defined (SPSR)
 		SPCR = _SPCR;

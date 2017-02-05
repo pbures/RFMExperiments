@@ -1,3 +1,4 @@
+#ifdef  FINISHED_PORT_OF_ATC
 // **********************************************************************************
 // Automatic Transmit Power Control class derived from RFM69 library.
 // Discussion and details in this forum post: https://lowpowerlab.com/forum/index.php/topic,688.0.html
@@ -36,7 +37,8 @@ class RFM69_ATC: public RFM69 {
     static volatile uint8_t ACK_RSSI_REQUESTED;  // new flag in CTL byte to request RSSI with ACK (could potentially be merged with ACK_REQUESTED)
 
     RFM69_ATC(bool isRFM69HW=false, uint8_t interruptNum=RF69_IRQ_NUM) :
-      RFM69(isRFM69HW, interruptNum) {
+#warning "This is temporary, change later!"
+      RFM69(isRFM69HW, 0) {
     }
 
     inline uint16_t abs16(uint16_t val) {
@@ -67,5 +69,7 @@ class RFM69_ATC: public RFM69 {
     //bool    _powerBoost;      // this controls whether we need to turn on the highpower regs based on the setPowerLevel input
     uint8_t _PA_Reg;          // saved and derived PA control bits so we don't have to spend time reading back from SPI port
 };
+
+#endif
 
 #endif

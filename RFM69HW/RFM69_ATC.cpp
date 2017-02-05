@@ -1,3 +1,4 @@
+#ifdef  FINISHED_PORT_OF_ATC
 // **********************************************************************************
 // Automatic Transmit Power Control class derived from RFM69 library.
 // Discussion and details in this forum post: https://lowpowerlab.com/forum/index.php/topic,688.0.html
@@ -272,3 +273,4 @@ uint8_t RFM69_ATC::setLNA(uint8_t newReg) {  // TomWS1: New method used to disab
   writeReg(REG_LNA, ((newReg & 7) | (oldReg & ~7)));   // just control the LNA Gain bits for now
   return oldReg;  // return the original value in case we need to restore it
 }
+#endif

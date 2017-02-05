@@ -32,7 +32,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <TimerClass.h>
-#include "pindefs.h"
+#include <IOPin.h>
+
+#define ENCRYPTKEY "neverG1v3UpOhYes"
 
 #define RF69_MAX_DATA_LEN       61 // to take advantage of the built in AES/CRC we want to limit the frame size to the internal FIFO size (66 bytes - 3 bytes overhead - 2 bytes crc)
 #define RF69_IRQ_NUM          0
@@ -73,8 +75,14 @@ class RFM69 {
     static volatile int16_t RSSI; // most accurate RSSI during reception (closest to the reception)
     static volatile uint8_t _mode; // should be protected?
 
-    RFM69(bool isRFM69HW=false, uint8_t interruptNum=RF69_IRQ_NUM) {
-
+    RFM69(bool isRFM69HW, 
+		IOPin *spiCsPin,
+		IOPin *DIO0Pin
+		)
+	{
+	   this->spiCsPin = spiCsPin;
+	   this->DIO0Pin = DIO0Pin;
+	   
       _mode = RF69_MODE_STANDBY;
       _promiscuousMode = false;
       _powerLevel = 31;
@@ -116,6 +124,9 @@ class RFM69 {
     virtual void sendFrame(uint8_t toAddress, const void* buffer, uint8_t size, bool requestACK=false, bool sendACK=false);
 
     static RFM69* selfPointer;
+	
+	IOPin *spiCsPin;
+	IOPin *DIO0Pin;
 
     uint8_t _address;
     bool _promiscuousMode;
