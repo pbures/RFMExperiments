@@ -31,6 +31,8 @@
  #include <stdio.h>
  #include <util/delay.h>
  #include <string.h>
+ #include <avr/wdt.h>
+ 
  #include "RFM69.h"
  #include "SPI.h"
  #include "uart.h"
@@ -49,6 +51,8 @@
 
  int main(void)
  {
+	 wdt_reset();
+	 wdt_enable(WDTO_8S);
 	 grnLed.setToOutput();
 	 grnLed.setLow();
 	 redLed.setToOutput();
@@ -69,13 +73,14 @@
 	 
 	 printf("...Initializing RFM.\r\n");
 	 sei();
-	 
+	 wdt_reset();
 	 for(uint8_t i=0; i<5; i++) {
 		 grnLed.setHigh();
 		 _delay_ms(200);
 		 grnLed.setLow();
 		 _delay_ms(200);
 	 }
+	 
 	 
 	 DHT myDht(&dht22Pin);
 	 myDht.begin();
@@ -87,41 +92,40 @@
 	 #else
 	 bool res = radio.initialize(RF69_868MHZ, RFM_RECEIVER_DEVICE_ID, RFM_NETWORK_ID);
 	 #endif
-	 
+	 wdt_reset();
+	 	 
 	 if (res) {
 		 printf("...RF69 Initialization successful.\r\n");
 		 } else {
 		 printf("...RF69 Failed.\r\n");
 	 }
-
-	 #ifdef DEBUG
-	 //printf("\n\r...Reading all registers.\r\n");
-	 //radio.readAllRegs();
-	 #endif
 	 	 
 	 radio.setHighPower();
-	 radio.encrypt(ENCRYPTKEY);
+	 //radio.encrypt(ENCRYPTKEY);
 	 //radio.enableAutoPower(ATC_RSSI);
 	 
 	 #ifdef TRANSCIEVER
-	 char buffer[22];
+	 char buffer[50];
 	 
 	 while(true) {
+		 for(uint8_t i=0;i<10;i++){
+			wdt_reset();
+			 _delay_ms(1000);
+		 }
 
-		 _delay_ms(2000);
-		 
+		 wdt_reset();		 
 		 float temperature = myDht.getTemperature();
 		 float humidity = myDht.getHumidity();
 
-		 snprintf(buffer,22,"T[%+07.2f] H[%+07.2f]", (double)temperature, (double)humidity);
+		 snprintf(buffer,50,"T[%+07.2f] H[%+07.2f]",(double)temperature, (double)humidity);
 		 printf("%s", buffer);
-		 
-		 bool sent = radio.sendWithRetry(RFM_RECEIVER_DEVICE_ID, buffer, strlen(buffer)+1);
+
+		 wdt_reset();
+		 /*Retries set to 1 as we do not have ACK on arduino side */	 
+		 bool sent = radio.sendWithRetry(RFM_RECEIVER_DEVICE_ID, buffer, strlen(buffer)+1, 1); 
 		 printf_P(PSTR("...%s\r\n"), sent ? " success" : " failure");
 		 
-		 IOPin *indicator;
-		 indicator = (sent ? (&grnLed): (&redLed));
-		 
+		 wdt_reset();	 
 		 if (sent) {
 			 grnLed.setHigh();
 			 _delay_ms(100);
@@ -133,7 +137,6 @@
 		 }
 		 
 		 radio.sleep();
-		 _delay_ms(1000);
 	 }
 	 #endif
 	 
