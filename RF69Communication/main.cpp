@@ -57,6 +57,8 @@
 	 grnLed.setLow();
 	 redLed.setToOutput();
 	 redLed.setLow();
+	 pwrPin.setToOutput();
+	 pwrPin.setLow();
 	 
 	 rf69SpiCsPin.setToOutput();
 	 rf69SpiCsPin.setHigh();
@@ -80,7 +82,6 @@
 		 grnLed.setLow();
 		 _delay_ms(200);
 	 }
-	 
 	 
 	 DHT myDht(&dht22Pin);
 	 myDht.begin();
@@ -108,14 +109,22 @@
 	 char buffer[50];
 	 
 	 while(true) {
+		 
 		 for(uint8_t i=0;i<10;i++){
 			wdt_reset();
 			 _delay_ms(1000);
 		 }
+		 
+		 /* Power on the DHT22 sensor and git it 500ms to start (got this time by experimenting) */
+		 pwrPin.setHigh();
+		 _delay_ms(500);
 
 		 wdt_reset();		 
 		 float temperature = myDht.getTemperature();
 		 float humidity = myDht.getHumidity();
+
+		 /* Power off the DHT by disconnecting it */
+		 pwrPin.setLow();
 
 		 snprintf(buffer,50,"T[%+07.2f] H[%+07.2f]",(double)temperature, (double)humidity);
 		 printf("%s", buffer);
@@ -123,6 +132,8 @@
 		 wdt_reset();
 		 /*Retries set to 1 as we do not have ACK on arduino side */	 
 		 bool sent = radio.sendWithRetry(RFM_RECEIVER_DEVICE_ID, buffer, strlen(buffer)+1, 1); 
+		 radio.sleep();
+		 
 		 printf_P(PSTR("...%s\r\n"), sent ? " success" : " failure");
 		 
 		 wdt_reset();	 
@@ -135,8 +146,6 @@
 			 _delay_ms(100);
 			 redLed.setLow();
 		 }
-		 
-		 radio.sleep();
 	 }
 	 #endif
 	 
